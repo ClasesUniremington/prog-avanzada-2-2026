@@ -1,4 +1,17 @@
 -------------------------------------------------------------------------------
 Test set: co.edu.uniremington.payroll.service.PayrollServiceTest
 -------------------------------------------------------------------------------
-Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.477 s -- in co.edu.uniremington.payroll.service.PayrollServiceTest
+Tests run: 6, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 2.048 s <<< FAILURE! -- in co.edu.uniremington.payroll.service.PayrollServiceTest
+co.edu.uniremington.payroll.service.PayrollServiceTest.calculateNetSalary_FullTime -- Time elapsed: 0.190 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <2760.80> but was: <2760.00>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:201)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:184)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:179)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:1171)
+	at co.edu.uniremington.payroll.service.PayrollServiceTest.calculateNetSalary_FullTime(PayrollServiceTest.java:47)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
