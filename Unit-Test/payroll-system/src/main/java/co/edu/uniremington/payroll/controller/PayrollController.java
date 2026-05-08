@@ -6,10 +6,6 @@ import co.edu.uniremington.payroll.service.PayrollService;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * Controlador puro de Java. Actúa como intermediario entre la Vista (Main) y el Servicio.
- * (MVC sin frameworks).
- */
 public class PayrollController {
 
     private final PayrollService service;
