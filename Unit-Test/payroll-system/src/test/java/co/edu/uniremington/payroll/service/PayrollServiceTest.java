@@ -7,9 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Optional;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,9 +35,17 @@ class PayrollServiceTest {
     void calculateNetSalary_FullTime() {
         // TODO: Estudiante:
         // 1. Arrange: Crear un empleado FULL_TIME y configurar el mock del repository.findById()
+
+        Employee employee = new Employee(3L, "Pedro Perez", "pedrito@email.com", "FULL_TIME",
+                new BigDecimal(3000), 48, 5);
+
+        Mockito.when(repository.findById(3L)).thenReturn(Optional.of(employee));
         // 2. Act: Llamar a service.calculateNetSalary()
+        BigDecimal salary = service.calculateNetSalary(employee.getId());
         // 3. Assert: Verificar con assertEquals que el salario neto es el correcto (Base - 8%).
+        assertEquals(new BigDecimal("2760.00"), salary);
         // 4. Assert: Verificar que el método findById() del repositorio fue llamado con verify().
+        Mockito.verify(repository, Mockito.times(1)).findById(3L);
     }
 
     @Test
@@ -42,7 +53,9 @@ class PayrollServiceTest {
     void calculateNetSalary_NotFound() {
         // TODO: Estudiante:
         // 1. Arrange: Configurar el mock para que findById devuelva Optional.empty()
+        Mockito.when(repository.findById(99L)).thenReturn(Optional.empty());
         // 2. Act & Assert: Usar assertThrows(IllegalArgumentException.class, ...)
+        assertThrows(IllegalArgumentException.class, () -> service.calculateNetSalary(99L));
     }
 
     // =========================================================================
@@ -54,9 +67,15 @@ class PayrollServiceTest {
     void calculateAntiquityBonus_FullTime() {
         // TODO: Estudiante:
         // 1. Arrange: Crear un empleado FULL_TIME con 3 años de antigüedad y salario base 1000.
+        Employee employee = new Employee(3L, "Pedro Perez", "pedrito@email.com", "FULL_TIME",
+                new BigDecimal(1000), 48, 3);
+
         // 2. Configurar el mock del repositorio para que retorne este empleado.
+        Mockito.when(repository.findById(3L)).thenReturn(Optional.of(employee));
         // 3. Act: Llamar a calculateAntiquityBonus()
+        BigDecimal bonus = service.calculateAntiquityBonus(employee.getId());
         // 4. Assert: Verificar que el bono sea $150.00 (5% de 1000 = 50 * 3 años).
+        assertEquals(new BigDecimal("150.00"), bonus);
     }
 
     @Test
@@ -64,8 +83,13 @@ class PayrollServiceTest {
     void calculateAntiquityBonus_Hourly_ReturnsZero() {
         // TODO: Estudiante:
         // 1. Arrange: Crear empleado HOURLY y configurar el mock.
+        Employee employee = new Employee(5L, "Pedro Perez", "pedrito@email.com", "HOURLY",
+                new BigDecimal(1000), 48, 3);
         // 2. Act & Assert: Verificar que el bono sea cero.
+        Mockito.when(repository.findById(5L)).thenReturn(Optional.of(employee));
+        assertEquals(new BigDecimal(0), service.calculateAntiquityBonus(employee.getId()));
         // 3. Opcional: Usar Mockito verify() para asegurar que sí se buscó el empleado en el repositorio.
+        Mockito.verify(repository, Mockito.times(1)).findById(5L);
     }
 
     @Test
