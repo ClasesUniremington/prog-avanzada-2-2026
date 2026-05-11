@@ -25,24 +25,16 @@ public class ProductServiceTest {
 
     @Test
     public void debeGuardarProductoCorrectamente() {
-        Product product = new Product(1L, "Teclado", new BigDecimal("50.00"));
-        
-        productService.createProduct(product);
-
-        ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
-        verify(repository).save(captor.capture());
-        
-        Product savedProduct = captor.getValue();
-        assertEquals("Teclado", savedProduct.getName());
-        assertEquals(new BigDecimal("50.00"), savedProduct.getPrice());
+        // TODO: ESTUDIANTE: 1) Instanciar un producto con datos válidos
+        // TODO: ESTUDIANTE: 2) Llamar al método createProduct del productService
+        // TODO: ESTUDIANTE: 3) Usar ArgumentCaptor para capturar el producto enviado al repositorio
+        // TODO: ESTUDIANTE: 4) Verificar con assert que los datos del producto capturado coinciden con los creados
     }
 
     @Test
     public void debeLanzarExcepcionCuandoElPrecioEsNegativo() {
-        Product product = new Product(1L, "Monitor", new BigDecimal("-100.00"));
-        
-        assertThrows(IllegalArgumentException.class, () -> {
-            productService.createProduct(product);
-        });
+        // TODO: ESTUDIANTE: 1) Instanciar un producto con precio negativo
+        // TODO: ESTUDIANTE: 2) Usar assertThrows para verificar que se lanza IllegalArgumentException 
+        //                      al llamar a productService.createProduct()
     }
 }
