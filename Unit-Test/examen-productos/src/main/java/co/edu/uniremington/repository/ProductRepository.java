@@ -1,6 +1,6 @@
-package com.app.repository;
+package co.edu.uniremington.repository;
 
-import com.app.model.Product;
+import co.edu.uniremington.model.Product;
 import java.util.List;
 
 public interface ProductRepository {

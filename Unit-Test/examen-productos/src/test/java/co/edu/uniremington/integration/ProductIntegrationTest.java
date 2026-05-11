@@ -1,10 +1,10 @@
-package com.app.integration;
+package co.edu.uniremington.integration;
 
-import com.app.controller.ProductController;
-import com.app.model.Product;
-import com.app.repository.InMemoryProductRepository;
-import com.app.repository.ProductRepository;
-import com.app.service.ProductService;
+import co.edu.uniremington.controller.ProductController;
+import co.edu.uniremington.model.Product;
+import co.edu.uniremington.repository.InMemoryProductRepository;
+import co.edu.uniremington.repository.ProductRepository;
+import co.edu.uniremington.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

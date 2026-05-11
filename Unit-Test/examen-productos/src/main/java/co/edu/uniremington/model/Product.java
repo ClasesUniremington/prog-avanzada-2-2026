@@ -1,4 +1,4 @@
-package com.app.model;
+package co.edu.uniremington.model;
 
 import java.math.BigDecimal;
 

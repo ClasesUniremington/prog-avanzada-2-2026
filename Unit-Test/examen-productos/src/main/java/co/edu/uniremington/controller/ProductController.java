@@ -1,7 +1,7 @@
-package com.app.controller;
+package co.edu.uniremington.controller;
 
-import com.app.model.Product;
-import com.app.service.ProductService;
+import co.edu.uniremington.model.Product;
+import co.edu.uniremington.service.ProductService;
 
 public class ProductController {
     private final ProductService service;

@@ -1,7 +1,7 @@
-package com.app.service;
+package co.edu.uniremington.service;
 
-import com.app.model.Product;
-import com.app.repository.ProductRepository;
+import co.edu.uniremington.model.Product;
+import co.edu.uniremington.repository.ProductRepository;
 import java.math.BigDecimal;
 
 public class ProductService {
