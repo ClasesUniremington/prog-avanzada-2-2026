@@ -31,17 +31,17 @@ public class PayrollService {
      * Calcula el salario neto utilizando Java 21 Switch Expression.
      */
     public BigDecimal calculateNetSalary(Long employeeId) {
-<span class="nc" id="L34">        Employee employee = repository.findById(employeeId)</span>
-<span class="nc" id="L35">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Empleado no encontrado con ID: &quot; + employeeId));</span>
+<span class="fc" id="L34">        Employee employee = repository.findById(employeeId)</span>
+<span class="fc" id="L35">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Empleado no encontrado con ID: &quot; + employeeId));</span>
 
-<span class="nc bnc" id="L37" title="All 2 branches missed.">        BigDecimal base = employee.getBaseSalary() != null ? employee.getBaseSalary() : BigDecimal.ZERO;</span>
-<span class="nc bnc" id="L38" title="All 2 branches missed.">        String type = employee.getContractType() != null ? employee.getContractType().toUpperCase() : &quot;UNKNOWN&quot;;</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        BigDecimal base = employee.getBaseSalary() != null ? employee.getBaseSalary() : BigDecimal.ZERO;</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        String type = employee.getContractType() != null ? employee.getContractType().toUpperCase() : &quot;UNKNOWN&quot;;</span>
 
-<span class="nc bnc" id="L40" title="All 4 branches missed.">        return switch (type) {</span>
+<span class="pc bpc" id="L40" title="3 of 4 branches missed.">        return switch (type) {</span>
             case &quot;FULL_TIME&quot; -&gt; {
                 // Descuento del 8% (salud y pensión)
-<span class="nc" id="L43">                BigDecimal deductions = base.multiply(new BigDecimal(&quot;0.08&quot;));</span>
-<span class="nc" id="L44">                yield base.subtract(deductions).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L43">                BigDecimal deductions = base.multiply(new BigDecimal(&quot;0.08&quot;));</span>
+<span class="fc" id="L44">                yield base.subtract(deductions).setScale(2, RoundingMode.HALF_UP);</span>
             }
             case &quot;HOURLY&quot; -&gt; {
                 // Pago por horas trabajadas
@@ -58,21 +58,21 @@ public class PayrollService {
      * Solo aplica para empleados FULL_TIME. Reciben un 5% de su base por cada año de antigüedad.
      */
     public BigDecimal calculateAntiquityBonus(Long employeeId) {
-<span class="nc" id="L61">        Employee employee = repository.findById(employeeId)</span>
-<span class="nc" id="L62">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Empleado no encontrado&quot;));</span>
+<span class="fc" id="L61">        Employee employee = repository.findById(employeeId)</span>
+<span class="pc" id="L62">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Empleado no encontrado&quot;));</span>
 
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (!&quot;FULL_TIME&quot;.equalsIgnoreCase(employee.getContractType())) {</span>
-<span class="nc" id="L65">            return BigDecimal.ZERO; // Otros contratos no reciben bono de antigüedad</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (!&quot;FULL_TIME&quot;.equalsIgnoreCase(employee.getContractType())) {</span>
+<span class="fc" id="L65">            return BigDecimal.ZERO; // Otros contratos no reciben bono de antigüedad</span>
         }
 
-<span class="nc bnc" id="L68" title="All 2 branches missed.">        int years = employee.getAntiquityYears() != null ? employee.getAntiquityYears() : 0;</span>
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (years &lt; 1) {</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        int years = employee.getAntiquityYears() != null ? employee.getAntiquityYears() : 0;</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (years &lt; 1) {</span>
 <span class="nc" id="L70">            return BigDecimal.ZERO;</span>
         }
 
         // 5% del salario base por cada año
-<span class="nc" id="L74">        BigDecimal bonusPerYear = employee.getBaseSalary().multiply(new BigDecimal(&quot;0.05&quot;));</span>
-<span class="nc" id="L75">        return bonusPerYear.multiply(BigDecimal.valueOf(years)).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L74">        BigDecimal bonusPerYear = employee.getBaseSalary().multiply(new BigDecimal(&quot;0.05&quot;));</span>
+<span class="fc" id="L75">        return bonusPerYear.multiply(BigDecimal.valueOf(years)).setScale(2, RoundingMode.HALF_UP);</span>
     }
 
     /**
@@ -80,14 +80,14 @@ public class PayrollService {
      * Se descuentan $15.00 por cada falta reportada. El salario nunca puede ser menor a 0.
      */
     public BigDecimal applyLatePenalty(BigDecimal currentSalary, int lateDays) {
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (lateDays &lt;= 0) {</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (lateDays &lt;= 0) {</span>
 <span class="nc" id="L84">            return currentSalary;</span>
         }
 
-<span class="nc" id="L87">        BigDecimal penalty = new BigDecimal(&quot;15.00&quot;).multiply(BigDecimal.valueOf(lateDays));</span>
-<span class="nc" id="L88">        BigDecimal result = currentSalary.subtract(penalty);</span>
+<span class="fc" id="L87">        BigDecimal penalty = new BigDecimal(&quot;15.00&quot;).multiply(BigDecimal.valueOf(lateDays));</span>
+<span class="fc" id="L88">        BigDecimal result = currentSalary.subtract(penalty);</span>
 
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        return result.compareTo(BigDecimal.ZERO) &lt; 0 ? BigDecimal.ZERO : result.setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        return result.compareTo(BigDecimal.ZERO) &lt; 0 ? BigDecimal.ZERO : result.setScale(2, RoundingMode.HALF_UP);</span>
     }
 
     /**
