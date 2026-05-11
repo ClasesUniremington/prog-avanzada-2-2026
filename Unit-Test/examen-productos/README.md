@@ -7,12 +7,12 @@
 ---
 
 ## 🎯 Objetivo del Examen
-Evaluar la capacidad del estudiante para implementar pruebas unitarias (usando Mockito y JUnit 5) y pruebas de integración en un entorno Java 21 con Maven. El estudiante deberá completar la lógica de pruebas necesaria para asegurar la calidad de un sistema de gestión de productos.
+Evaluar la capacidad del estudiante para implementar pruebas unitarias (usando Mockito y JUnit 6) y pruebas de integración en un entorno Java 21 con Maven. El estudiante deberá completar la lógica de pruebas necesaria para asegurar la calidad de un sistema de gestión de productos.
 
 ## 🛠️ Tecnologías Requeridas
 *   **Java:** Versión 21 o superior.
 *   **Maven:** 3.8+ para la gestión de dependencias y ejecución de pruebas.
-*   **JUnit 5 (Jupiter):** Framework de pruebas.
+*   **JUnit 6 (Jupiter):** Framework de pruebas.
 *   **Mockito:** Biblioteca para creación de Mocks.
 
 ## 📁 Estructura del Proyecto
