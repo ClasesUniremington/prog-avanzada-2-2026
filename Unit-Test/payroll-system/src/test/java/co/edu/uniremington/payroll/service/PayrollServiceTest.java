@@ -7,9 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.configuration.IMockitoConfiguration;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,9 +35,23 @@ class PayrollServiceTest {
     void calculateNetSalary_FullTime() {
         // TODO: Estudiante:
         // 1. Arrange: Crear un empleado FULL_TIME y configurar el mock del repository.findById()
+       Employee employee = new Employee(3L,"Pedro perez", "pedritoperezgmail.com","FULL_TIME",new BigDecimal(3000D),30,5);
+
+       Mockito.when(repository.findById(3L)).thenReturn(Optional.of(employee));
+
         // 2. Act: Llamar a service.calculateNetSalary()
+
+       BigDecimal salary = service.calculateNetSalary(employee.getId());
+
         // 3. Assert: Verificar con assertEquals que el salario neto es el correcto (Base - 8%).
+        Assert:
+
+        assertEquals(new BigDecimal("2760.00"), salary);
+
+
         // 4. Assert: Verificar que el método findById() del repositorio fue llamado con verify().
+
+        Mockito.verify(repository,Mockito.times(1)).findById(3L);
     }
 
     @Test
@@ -42,7 +59,11 @@ class PayrollServiceTest {
     void calculateNetSalary_NotFound() {
         // TODO: Estudiante:
         // 1. Arrange: Configurar el mock para que findById devuelva Optional.empty()
+        Mockito.when(repository.findById(99L)).thenReturn(Optional.empty());
+
         // 2. Act & Assert: Usar assertThrows(IllegalArgumentException.class, ...)
+        assertThrows(IllegalArgumentException.class, () -> service.calculateNetSalary(99L));
+
     }
 
     // =========================================================================
@@ -53,10 +74,16 @@ class PayrollServiceTest {
     @DisplayName("Bono de Antigüedad: Debe calcular 5% por año para FULL_TIME")
     void calculateAntiquityBonus_FullTime() {
         // TODO: Estudiante:
-        // 1. Arrange: Crear un empleado FULL_TIME con 3 años de antigüedad y salario base 1000.
-        // 2. Configurar el mock del repositorio para que retorne este empleado.
-        // 3. Act: Llamar a calculateAntiquityBonus()
-        // 4. Assert: Verificar que el bono sea $150.00 (5% de 1000 = 50 * 3 años).
+        // 1. Arrange: Empleado FULL_TIME, 3 años, salario 1000
+        Employee employee = new Employee(1L, "Ana", "ana@email.com", "FULL_TIME", BigDecimal.valueOf(1000), 40, 3);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(employee));
+
+        // 3. Act
+        BigDecimal bonus = service.calculateAntiquityBonus(employee.getId());
+
+        // 4. Assert: 5% de 1000 es 50. Por 3 años = 150.
+        assertEquals(new BigDecimal("150.00"), bonus);
+
     }
 
     @Test
@@ -64,25 +91,41 @@ class PayrollServiceTest {
     void calculateAntiquityBonus_Hourly_ReturnsZero() {
         // TODO: Estudiante:
         // 1. Arrange: Crear empleado HOURLY y configurar el mock.
+        Employee employee = new Employee(1L, "Ana", "ana@email.com", "HOURLY", BigDecimal.valueOf(1000), 40, 3);
+        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(employee));
         // 2. Act & Assert: Verificar que el bono sea cero.
+        Mockito.when(repository.findById(5L)).thenReturn(Optional.of(employee));
+        assertEquals(new BigDecimal(0), service.calculateAntiquityBonus(employee));
         // 3. Opcional: Usar Mockito verify() para asegurar que sí se buscó el empleado en el repositorio.
+        Mockito.verify(repository, Mockito.times(1)).findById(5L);
     }
 
     @Test
     @DisplayName("Penalidad: Debe restar $15.00 por día de retraso")
     void applyLatePenalty_CalculatesCorrectly() {
         // TODO: Estudiante:
-        // 1. Arrange: (No se necesita mock aquí porque el método no usa el repositorio)
-        //    Definir un salario inicial de $100.00 y 2 días de retraso.
-        // 2. Act: Llamar a applyLatePenalty(salario, dias)
-        // 3. Assert: El resultado debe ser $70.00.
-    }
-
-    @Test
-    @DisplayName("Penalidad: El salario nunca debe ser menor a cero")
-    void applyLatePenalty_NeverBelowZero() {
-        // TODO: Estudiante:
-        // 1. Probar qué pasa si el empleado gana $20.00 pero llegó tarde 5 días (penalidad de 75).
-        // 2. Verificar que el resultado sea 0.00, no un valor negativo.
+        //         // 1. Arrange: Valores simples. No hay mock porque el método no consulta la BD.
+        //        BigDecimal salarioBase = BigDecimal.valueOf(100);
+        //        int diasRetraso = 2; // 2 * 15 = 30 de penalidad
+        //
+        //        // 2. Act
+        //        BigDecimal resultado = service.applyLatePenalty(salarioBase, diasRetraso);
+        //
+        //        // 3. Assert: 100 - 30 = 70
+        //        assertEquals(new BigDecimal("70.00"), resultado);
+        //    }
+        //
+        //    @Test
+        //    @DisplayName("Penalidad: El salario nunca debe ser menor a cero")
+        //    void applyLatePenalty_NeverBelowZero() {
+        //        // 1. Arrange: Gana 20, pero se retrasó 5 días (penalidad de 75)
+        //        BigDecimal salarioBase = BigDecimal.valueOf(20);
+        //        int diasRetraso = 5;
+        //
+        //        // 2. Act
+        //        BigDecimal resultado = service.applyLatePenalty(salarioBase, diasRetraso);
+        //
+        //        // 3. Assert: Como 20 - 75 daría negativo, el método debe protegerlo y devolver 0
+        //        assertEquals(BigDecimal.ZERO, resultado);
     }
 }
