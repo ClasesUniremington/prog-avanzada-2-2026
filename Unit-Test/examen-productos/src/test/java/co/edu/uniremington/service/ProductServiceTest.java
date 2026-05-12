@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -26,15 +27,22 @@ public class ProductServiceTest {
     @Test
     public void debeGuardarProductoCorrectamente() {
         // TODO: ESTUDIANTE: 1) Instanciar un producto con datos válidos
+        Product product = new Product (3L,"banana", new BigDecimal("4500.00") );
         // TODO: ESTUDIANTE: 2) Llamar al método createProduct del productService
+          productService.createProduct(product);
         // TODO: ESTUDIANTE: 3) Usar ArgumentCaptor para capturar el producto enviado al repositorio
+        ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
         // TODO: ESTUDIANTE: 4) Verificar con assert que los datos del producto capturado coinciden con los creados
+        verify(repository).save(captor.capture());
     }
 
     @Test
     public void debeLanzarExcepcionCuandoElPrecioEsNegativo() {
         // TODO: ESTUDIANTE: 1) Instanciar un producto con precio negativo
+        Product product = new Product(5L, "yuca", new BigDecimal("-500.00"));
         // TODO: ESTUDIANTE: 2) Usar assertThrows para verificar que se lanza IllegalArgumentException 
         //                      al llamar a productService.createProduct()
+        assertThrows(IllegalArgumentException.class, () -> productService.createProduct(product));
+
     }
 }
