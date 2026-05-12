@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
@@ -23,18 +23,35 @@ public class ProductServiceTest {
     @InjectMocks
     private ProductService productService;
 
-    @Test
-    public void debeGuardarProductoCorrectamente() {
-        // TODO: ESTUDIANTE: 1) Instanciar un producto con datos válidos
-        // TODO: ESTUDIANTE: 2) Llamar al método createProduct del productService
-        // TODO: ESTUDIANTE: 3) Usar ArgumentCaptor para capturar el producto enviado al repositorio
-        // TODO: ESTUDIANTE: 4) Verificar con assert que los datos del producto capturado coinciden con los creados
-    }
+   @Test
+   public void debeGuardarProductoCorrectamente() {
+       // 1) Instanciar un producto con datos válidos
+       Product producto = new Product(1L, "Teclado Mecánico", new BigDecimal("350000.0"));
+
+    // 2) Llamar al método createProduct del productService
+       productService.createProduct(producto);
+
+    // 3) Usar ArgumentCaptor para capturar el producto enviado al repositorio
+       ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
+       verify(repository).save(captor.capture());
+       Product productoCaptado = captor.getValue();
+   
+    // 4) Verificar que los datos coinciden
+       assertEquals(producto.getId(),    productoCaptado.getId());
+       assertEquals(producto.getName(),  productoCaptado.getName());
+       assertEquals(producto.getPrice(), productoCaptado.getPrice());
+   }
+
 
     @Test
     public void debeLanzarExcepcionCuandoElPrecioEsNegativo() {
-        // TODO: ESTUDIANTE: 1) Instanciar un producto con precio negativo
-        // TODO: ESTUDIANTE: 2) Usar assertThrows para verificar que se lanza IllegalArgumentException 
-        //                      al llamar a productService.createProduct()
+        // 1) Instanciar un producto con precio negativo
+        Product productoInvalido = new Product(2L, "Producto Malo", new BigDecimal("-100.0"));
+
+        // 2) Verificar que se lanza IllegalArgumentException
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> productService.createProduct(productoInvalido)
+        );
     }
 }
