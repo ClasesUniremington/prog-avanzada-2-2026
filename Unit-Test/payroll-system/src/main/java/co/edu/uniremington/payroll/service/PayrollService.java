@@ -16,7 +16,6 @@ public class PayrollService {
 
     // Inyección de dependencias a través del constructor
     public PayrollService(EmployeeRepository repository) {
-
         this.repository = repository;
     }
 
@@ -32,17 +31,16 @@ public class PayrollService {
      * Calcula el salario neto utilizando Java 21 Switch Expression.
      */
     public BigDecimal calculateNetSalary(Long employeeId) {
-        Employee employee = repository.findById(employeeId).orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado con ID: " + employeeId));
+        Employee employee = repository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado con ID: " + employeeId));
 
         BigDecimal base = employee.getBaseSalary() != null ? employee.getBaseSalary() : BigDecimal.ZERO;
         String type = employee.getContractType() != null ? employee.getContractType().toUpperCase() : "UNKNOWN";
-
 
         return switch (type) {
             case "FULL_TIME" -> {
                 // Descuento del 8% (salud y pensión)
                 BigDecimal deductions = base.multiply(new BigDecimal("0.08"));
-
                 yield base.subtract(deductions).setScale(2, RoundingMode.HALF_UP);
             }
             case "HOURLY" -> {
@@ -60,7 +58,8 @@ public class PayrollService {
      * Solo aplica para empleados FULL_TIME. Reciben un 5% de su base por cada año de antigüedad.
      */
     public BigDecimal calculateAntiquityBonus(Long employeeId) {
-        Employee employee = repository.findById(employeeId).orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado"));
+        Employee employee = repository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado"));
 
         if (!"FULL_TIME".equalsIgnoreCase(employee.getContractType())) {
             return BigDecimal.ZERO; // Otros contratos no reciben bono de antigüedad
@@ -98,7 +97,8 @@ public class PayrollService {
      * - Cualquier otro tipo de contrato recibe un bono fijo de $50.00.
      */
     public BigDecimal calculateChristmasBonus(Long employeeId) {
-        Employee employee = repository.findById(employeeId).orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado para bono navideño"));
+        Employee employee = repository.findById(employeeId)
+                .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado para bono navideño"));
 
         if ("FULL_TIME".equalsIgnoreCase(employee.getContractType())) {
             BigDecimal bonus = employee.getBaseSalary().multiply(new BigDecimal("0.50"));
