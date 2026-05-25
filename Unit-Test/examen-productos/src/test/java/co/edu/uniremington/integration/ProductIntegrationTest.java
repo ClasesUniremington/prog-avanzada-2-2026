@@ -28,9 +28,30 @@ public class ProductIntegrationTest {
 
     @Test
     public void debeIntegrarCapasYCrearProductoExitosamente() {
-        // TODO: ESTUDIANTE: 1) Crear producto
-        // TODO: ESTUDIANTE: 2) Llamar al controlador
-        // TODO: ESTUDIANTE: 3) Recuperar lista del repo
-        // TODO: ESTUDIANTE: 4) Validar persistencia
+        Product producto = new Product(1L, "Laptop", new BigDecimal("1200.00"));
+
+        String respuesta = controller.processCreateProduct(producto);
+
+        List<Product> productos = repository.findAll();
+
+        assertEquals("Producto creado con éxito: Laptop", respuesta);
+        assertEquals(1, productos.size());
+
+        Product productoGuardado = productos.get(0);
+        assertEquals(1L, productoGuardado.getId());
+        assertEquals("Laptop", productoGuardado.getName());
+        assertEquals(new BigDecimal("1200.00"), productoGuardado.getPrice());
+    }
+
+    @Test
+    public void debeIntegrarCapasYRechazarProductoConPrecioNegativo() {
+        Product producto = new Product(2L, "Mouse", new BigDecimal("-15.00"));
+
+        String respuesta = controller.processCreateProduct(producto);
+
+        List<Product> productos = repository.findAll();
+
+        assertEquals("Error: El precio no puede ser negativo", respuesta);
+        assertTrue(productos.isEmpty());
     }
 }
