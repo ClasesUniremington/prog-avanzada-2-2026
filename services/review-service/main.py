@@ -39,6 +39,8 @@ import httpx
 import logging
 from datetime import datetime
 import os
+import socket
+from py_eureka_client import eureka_client
 
 # 
 # CONFIGURACIÓN
@@ -460,10 +462,38 @@ async def startup_event():
     print(f"  [USER] User Service: {USER_SERVICE_URL}")
     print(f"  [PRODUCT] Product Service: {PRODUCT_SERVICE_URL}")
     print(f"  [EUREKA] Eureka Server: {EUREKA_SERVER}")
+
+    try:
+        print("\n[EUREKA] Registrando con Eureka...")
+        eureka_client.init(
+            eureka_server=EUREKA_SERVER.replace("/eureka", ""),
+            app_name="REVIEW-SERVICE",
+            instance_port=REVIEW_SERVICE_PORT,
+            instance_ip=socket.gethostbyname(socket.gethostname()),
+            health_check_url_path="/health",
+            renewal_interval_in_secs=30,
+            duration_in_secs=90
+        )
+        print("[OK] Registrado en Eureka como REVIEW-SERVICE")
+    except Exception as e:
+        print(f"[WARN] No se pudo registrar en Eureka: {str(e)}")
+        print("[INFO] El servicio seguirá funcionando sin Eureka")
+
     print("\nTIP: Abre http://localhost:9090/docs para probar los endpoints\n")
 
 
-# 
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Se ejecuta cuando se detiene el servidor"""
+    print("\n[SHUTDOWN] Deregistrando de Eureka...")
+    try:
+        eureka_client.stop()
+        print("[OK] Deregistrado de Eureka")
+    except Exception as e:
+        print(f"[WARN] Error al deregistrar: {str(e)}")
+
+
+#
 # PUNTO DE ENTRADA
 # 
 
