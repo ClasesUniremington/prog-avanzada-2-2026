@@ -40,6 +40,7 @@ import logging
 from datetime import datetime
 import os
 import socket
+import json
 from py_eureka_client import eureka_client
 
 # 
@@ -447,6 +448,68 @@ async def health_check():
 # MENSAJE AL INICIAR
 # 
 
+async def register_with_eureka():
+    """Registrar el servicio con Eureka usando HTTP directo"""
+    try:
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname)
+        instance_id = f"{hostname}:REVIEW-SERVICE:{REVIEW_SERVICE_PORT}"
+
+        eureka_url = f"{EUREKA_SERVER}/apps/REVIEW-SERVICE"
+
+        # Payload simplificado que Eureka espera
+        payload = {
+            "instance": {
+                "instanceId": instance_id,
+                "hostName": ip_address,
+                "app": "REVIEW-SERVICE",
+                "ipAddr": ip_address,
+                "status": "UP",
+                "port": {
+                    "$": REVIEW_SERVICE_PORT,
+                    "@enabled": "true"
+                },
+                "securePort": {
+                    "$": 443,
+                    "@enabled": "false"
+                },
+                "homePageUrl": f"http://{ip_address}:{REVIEW_SERVICE_PORT}/",
+                "statusPageUrl": f"http://{ip_address}:{REVIEW_SERVICE_PORT}/health",
+                "healthCheckUrl": f"http://{ip_address}:{REVIEW_SERVICE_PORT}/health",
+                "dataCenterInfo": {
+                    "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+                    "name": "MyOwn"
+                },
+                "leaseInfo": {
+                    "renewalIntervalInSecs": 30,
+                    "durationInSecs": 90
+                }
+            }
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                eureka_url,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=10.0
+            )
+
+            print(f"[EUREKA] POST request status: {response.status_code}")
+            if response.status_code in [200, 201, 204]:
+                print(f"[OK] Registrado en Eureka como REVIEW-SERVICE")
+                return True
+            else:
+                print(f"[WARN] Error registrando en Eureka: {response.status_code}")
+                print(f"[WARN] Response: {response.text[:200]}")
+                return False
+    except Exception as e:
+        print(f"[WARN] No se pudo registrar en Eureka: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
 @app.on_event("startup")
 async def startup_event():
     """Se ejecuta cuando inicia el servidor"""
@@ -463,34 +526,41 @@ async def startup_event():
     print(f"  [PRODUCT] Product Service: {PRODUCT_SERVICE_URL}")
     print(f"  [EUREKA] Eureka Server: {EUREKA_SERVER}")
 
-    try:
-        print("\n[EUREKA] Registrando con Eureka...")
-        eureka_client.init(
-            eureka_server=EUREKA_SERVER.replace("/eureka", ""),
-            app_name="REVIEW-SERVICE",
-            instance_port=REVIEW_SERVICE_PORT,
-            instance_ip=socket.gethostbyname(socket.gethostname()),
-            health_check_url_path="/health",
-            renewal_interval_in_secs=30,
-            duration_in_secs=90
-        )
-        print("[OK] Registrado en Eureka como REVIEW-SERVICE")
-    except Exception as e:
-        print(f"[WARN] No se pudo registrar en Eureka: {str(e)}")
-        print("[INFO] El servicio seguirá funcionando sin Eureka")
+    print("\n[EUREKA] Registrando con Eureka...")
+    await register_with_eureka()
 
     print("\nTIP: Abre http://localhost:9090/docs para probar los endpoints\n")
+
+
+async def deregister_from_eureka():
+    """Deregistrar el servicio de Eureka"""
+    try:
+        hostname = socket.gethostname()
+        instance_id = f"{hostname}:REVIEW-SERVICE:{REVIEW_SERVICE_PORT}"
+        eureka_url = f"{EUREKA_SERVER}/apps/REVIEW-SERVICE/{instance_id}"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.delete(
+                eureka_url,
+                timeout=10.0
+            )
+
+            if response.status_code in [200, 204]:
+                print("[OK] Deregistrado de Eureka")
+                return True
+            else:
+                print(f"[WARN] Error deregistrando: {response.status_code}")
+                return False
+    except Exception as e:
+        print(f"[WARN] Error al deregistrar: {str(e)}")
+        return False
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Se ejecuta cuando se detiene el servidor"""
     print("\n[SHUTDOWN] Deregistrando de Eureka...")
-    try:
-        eureka_client.stop()
-        print("[OK] Deregistrado de Eureka")
-    except Exception as e:
-        print(f"[WARN] Error al deregistrar: {str(e)}")
+    await deregister_from_eureka()
 
 
 #
