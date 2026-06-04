@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ============================================================ -->
+    <!-- COORDENADAS                                                  -->
+    <!-- ============================================================ -->
+    <groupId>com.uniremington</groupId>
+    <artifactId>uniremington-systemacademic</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>UniRemington System</name>
+    <description>
+        Sistema académico distribuido basado en microservicios.
+        Proyecto final - Lenguaje de Programación Avanzado II.
+    </description>
+
+    <!-- ============================================================ -->
+    <!-- PADRE: Spring Boot 4.0.0 (requerido por el PDF)              -->
+    <!-- ============================================================ -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.0</version>
+        <relativePath/>
+    </parent>
+
+    <!-- ============================================================ -->
+    <!-- MODULOS                                                      -->
+    <!-- ============================================================ -->
+    <modules>
+        <module>eureka-server</module>
+        <module>api-gateway</module>
+        <module>ms-courses</module>
+        <module>ms-students</module>
+    </modules>
+
+    <!-- ============================================================ -->
+    <!-- PROPIEDADES                                                  -->
+    <!-- ============================================================ -->
+    <properties>
+        <!-- Java 21 (requerido por el PDF) -->
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- ============================================================ -->
+        <!-- AJUSTE TECNICO JUSTIFICADO:                                  -->
+        <!-- El PDF solicita Spring Cloud 2024.0.0, pero ese release      -->
+        <!-- está basado en Spring Boot 3.4.x y es incompatible con       -->
+        <!-- Spring Boot 4.0.0 (Spring Framework 7). Para mantener        -->
+        <!-- el requisito principal del PDF (Boot 4.0.0) se utiliza el    -->
+        <!-- release train Spring Cloud 2025.1.0 (Oakwood), publicado     -->
+        <!-- en noviembre de 2025 como el alineado oficialmente con       -->
+        <!-- Boot 4.                                                      -->
+        <!-- ============================================================ -->
+        <spring-cloud.version>2025.1.0</spring-cloud.version>
+
+        <!-- Herramientas auxiliares -->
+        <!-- springdoc 3.0.x es la línea compatible con Spring Boot 4 -->
+        <springdoc-openapi.version>3.0.3</springdoc-openapi.version>
+        <jacoco.version>0.8.12</jacoco.version>
+        <mockito.version>5.12.0</mockito.version>
+
+        <!-- Umbral de cobertura (PDF exige >=80%) -->
+        <jacoco.coverage.minimum>0.80</jacoco.coverage.minimum>
+    </properties>
+
+    <!-- ============================================================ -->
+    <!-- DEPENDENCY MANAGEMENT                                        -->
+    <!-- ============================================================ -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- BOM de Spring Cloud -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- OpenAPI / Swagger (requerido por el PDF) -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc-openapi.version}</version>
+            </dependency>
+
+            <!-- Mockito 5.12+ (requerido por el PDF) -->
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- ============================================================ -->
+    <!-- BUILD: gestión compartida de plugins                         -->
+    <!-- ============================================================ -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Spring Boot Maven Plugin -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                </plugin>
+
+                <!-- Maven Compiler -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <parameters>true</parameters>
+                    </configuration>
+                </plugin>
+
+                <!-- Maven Surefire -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <argLine>@{argLine} -Xshare:off</argLine>
+                    </configuration>
+                </plugin>
+
+                <!-- ============================================================ -->
+                <!-- JaCoCo: declarado aquí, ACTIVADO solo en ms-courses/ms-students -->
+                <!-- ============================================================ -->
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                    <executions>
+                        <execution>
+                            <id>prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>report</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>check-coverage</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <rule>
+                                        <element>BUNDLE</element>
+                                        <limits>
+                                            <limit>
+                                                <counter>INSTRUCTION</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>${jacoco.coverage.minimum}</minimum>
+                                            </limit>
+                                        </limits>
+                                    </rule>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

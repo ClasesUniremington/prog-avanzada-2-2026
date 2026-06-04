@@ -1,0 +1,87 @@
+# ============================================================
+# API GATEWAY - UniRemington
+# Puerto local por defecto: 18080
+# Puerto oficial del PDF: 8080
+# Punto único de entrada para todo el tráfico externo
+# ============================================================
+
+server:
+  port: ${API_GATEWAY_PORT:18080}
+
+spring:
+  application:
+    name: api-gateway
+
+  # ============================================================
+  # RUTAS DE SPRING CLOUD GATEWAY SERVER MVC
+  # ============================================================
+  # Cada ruta mapea un prefijo de URL externa hacia un
+  # microservicio interno resuelto por nombre vía Eureka.
+  #
+  # El esquema 'lb://' indica a Spring Cloud Gateway que use
+  # el load balancer registrado (Spring Cloud LoadBalancer)
+  # para resolver el nombre lógico a un host:puerto físico.
+  # ============================================================
+  cloud:
+    loadbalancer:
+      cache:
+        ttl: 5s
+    gateway:
+      server:
+        webmvc:
+          routes:
+            # ----------------------------------------------------
+            # RUTA 1: Gestión de cursos
+            # ----------------------------------------------------
+            - id: courses-route
+              uri: lb://ms-courses
+              predicates:
+                - Path=/api/courses/**
+
+            # ----------------------------------------------------
+            # RUTA 2: Gestión de estudiantes
+            # ----------------------------------------------------
+            - id: students-route
+              uri: lb://ms-students
+              predicates:
+                - Path=/api/students/**
+
+            # ----------------------------------------------------
+            # RUTA 3: Gestión de matrículas
+            # (atendida por ms-students porque las matrículas
+            # pertenecen al dominio del estudiante)
+            # ----------------------------------------------------
+            - id: enrollments-route
+              uri: lb://ms-students
+              predicates:
+                - Path=/api/enrollments/**
+
+# ============================================================
+# CONFIGURACION DEL CLIENTE EUREKA
+# ============================================================
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    registry-fetch-interval-seconds: 5
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:18761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+# ============================================================
+# ACTUATOR (el gateway expone endpoints adicionales de rutas)
+# ============================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
+# ============================================================
+# LOGGING (útil para diagnosticar problemas de enrutamiento)
+# ============================================================
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    reactor.netty: INFO

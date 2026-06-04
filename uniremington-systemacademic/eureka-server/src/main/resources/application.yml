@@ -1,0 +1,56 @@
+# ============================================================
+# EUREKA SERVER - UniRemington
+# Puerto local por defecto: 18761
+# Puerto oficial del PDF: 8761
+# ============================================================
+
+server:
+  port: ${EUREKA_SERVER_PORT:18761}
+
+spring:
+  application:
+    name: eureka-server
+
+# ============================================================
+# CONFIGURACION DEL SERVIDOR EUREKA
+# ============================================================
+# Por defecto, un servidor Eureka también es un cliente que
+# intenta registrarse contra otros peers. Como esta es una
+# instalación standalone de un único nodo, deshabilitamos
+# ese comportamiento.
+# ============================================================
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    # No registrar este servidor como cliente de sí mismo
+    register-with-eureka: false
+    # No descargar el registro desde peers (no existen)
+    fetch-registry: false
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://${eureka.instance.hostname}:${server.port}/eureka/}
+  server:
+    # En desarrollo deshabilitamos la auto-preservación para
+    # que las instancias caídas se eliminen rápidamente del
+    # registro. En producción debería estar en 'true'.
+    enable-self-preservation: false
+    # Frecuencia (ms) con la que se ejecuta la tarea de
+    # remoción de instancias inactivas
+    eviction-interval-timer-in-ms: 15000
+
+# ============================================================
+# ACTUATOR (visibilidad básica del servidor)
+# ============================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# ============================================================
+# LOGGING
+# ============================================================
+logging:
+  level:
+    com.netflix.eureka: INFO
+    com.netflix.discovery: INFO

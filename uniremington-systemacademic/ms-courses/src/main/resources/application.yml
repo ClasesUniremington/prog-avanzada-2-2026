@@ -1,0 +1,83 @@
+# ============================================================
+# MS-COURSES - UniRemington
+# Puerto local por defecto: 18081
+# Puerto oficial del PDF: 8081
+# ============================================================
+
+server:
+  port: ${MS_COURSES_PORT:18081}
+
+spring:
+  application:
+    name: ms-courses
+
+  # ============================================================
+  # BASE DE DATOS H2 EN MEMORIA
+  # ============================================================
+  datasource:
+    url: jdbc:h2:mem:coursesdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # ============================================================
+  # JPA / HIBERNATE
+  # ============================================================
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  # ============================================================
+  # CONSOLA H2 (sólo desarrollo)
+  # ============================================================
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# ============================================================
+# CONFIGURACION DEL CLIENTE EUREKA
+# ============================================================
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:18761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+# ============================================================
+# OPENAPI / SWAGGER
+# Documentación expuesta en:
+#   - http://localhost:18081/swagger-ui.html
+#   - http://localhost:18081/api-docs
+# ============================================================
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+# ============================================================
+# ACTUATOR
+# ============================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# ============================================================
+# LOGGING
+# ============================================================
+logging:
+  level:
+    com.uniremington.courses: INFO
+    org.hibernate.SQL: INFO

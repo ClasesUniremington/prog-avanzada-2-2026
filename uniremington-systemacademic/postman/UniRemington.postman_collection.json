@@ -1,0 +1,445 @@
+{
+  "info": {
+    "name": "UniRemington API",
+    "description": "Colección completa para probar el sistema académico distribuido UniRemington. Todas las peticiones pasan por el API Gateway (puerto 18080).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "gateway",
+      "value": "http://localhost:18080",
+      "description": "URL base del API Gateway"
+    }
+  ],
+  "item": [
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "Listar todos los cursos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gateway}}/api/courses",
+              "host": ["{{gateway}}"],
+              "path": ["api", "courses"]
+            },
+            "description": "Retorna todos los cursos registrados. Esperado: 200 OK con lista de 3 cursos iniciales."
+          }
+        },
+        {
+          "name": "Obtener curso por id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gateway}}/api/courses/1",
+              "host": ["{{gateway}}"],
+              "path": ["api", "courses", "1"]
+            },
+            "description": "Retorna un curso específico. Esperado: 200 OK."
+          }
+        },
+        {
+          "name": "Obtener curso inexistente (404)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gateway}}/api/courses/999",
+              "host": ["{{gateway}}"],
+              "path": ["api", "courses", "999"]
+            },
+            "description": "Esperado: 404 Not Found con cuerpo de error estandarizado."
+          }
+        },
+        {
+          "name": "Crear curso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"REACT-401\",\n  \"name\": \"React Frontend Development\",\n  \"description\": \"Construccion de SPAs con React 18\",\n  \"availableSlots\": 25\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/courses",
+              "host": ["{{gateway}}"],
+              "path": ["api", "courses"]
+            },
+            "description": "Esperado: 201 Created con el curso creado y su id asignado."
+          }
+        },
+        {
+          "name": "Crear curso con validacion fallida (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"\",\n  \"name\": \"\",\n  \"availableSlots\": -5\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/courses",
+              "host": ["{{gateway}}"],
+              "path": ["api", "courses"]
+            },
+            "description": "Esperado: 400 Bad Request con la lista de errores de validacion en 'details'."
+          }
+        },
+        {
+          "name": "Actualizar curso",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"JAVA-101\",\n  \"name\": \"Introduccion a Java (actualizado)\",\n  \"description\": \"Curso introductorio al lenguaje Java y POO\",\n  \"availableSlots\": 40\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/courses/1",
+              "host": ["{{gateway}}"],
+              "path": ["api", "courses", "1"]
+            },
+            "description": "Esperado: 200 OK con los datos actualizados."
+          }
+        },
+        {
+          "name": "Reservar cupo",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{gateway}}/api/courses/1/reserve",
+              "host": ["{{gateway}}"],
+              "path": ["api", "courses", "1", "reserve"]
+            },
+            "description": "Decrementa cupos disponibles. Esperado: 200 OK. Si cupos = 0, retorna 409."
+          }
+        },
+        {
+          "name": "Liberar cupo",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{gateway}}/api/courses/1/release",
+              "host": ["{{gateway}}"],
+              "path": ["api", "courses", "1", "release"]
+            },
+            "description": "Incrementa cupos disponibles. Esperado: 200 OK."
+          }
+        },
+        {
+          "name": "Eliminar curso",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{gateway}}/api/courses/4",
+              "host": ["{{gateway}}"],
+              "path": ["api", "courses", "4"]
+            },
+            "description": "Esperado: 204 No Content."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "Listar todos los estudiantes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gateway}}/api/students",
+              "host": ["{{gateway}}"],
+              "path": ["api", "students"]
+            },
+            "description": "Esperado: 200 OK con 3 estudiantes iniciales (2 activos, 1 inactivo)."
+          }
+        },
+        {
+          "name": "Obtener estudiante por id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gateway}}/api/students/1",
+              "host": ["{{gateway}}"],
+              "path": ["api", "students", "1"]
+            }
+          }
+        },
+        {
+          "name": "Crear estudiante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Diego\",\n  \"lastName\": \"Hernandez\",\n  \"email\": \"diego.hernandez@uniremington.edu.co\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/students",
+              "host": ["{{gateway}}"],
+              "path": ["api", "students"]
+            },
+            "description": "Esperado: 201 Created."
+          }
+        },
+        {
+          "name": "Crear estudiante con email invalido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Diego\",\n  \"lastName\": \"Hernandez\",\n  \"email\": \"no-es-un-email\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/students",
+              "host": ["{{gateway}}"],
+              "path": ["api", "students"]
+            },
+            "description": "Esperado: 400 Bad Request."
+          }
+        },
+        {
+          "name": "Actualizar estudiante",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Camila\",\n  \"lastName\": \"Rodriguez Perez\",\n  \"email\": \"camila.rodriguez@uniremington.edu.co\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/students/1",
+              "host": ["{{gateway}}"],
+              "path": ["api", "students", "1"]
+            }
+          }
+        },
+        {
+          "name": "Cambiar estado del estudiante",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{gateway}}/api/students/3/status?active=true",
+              "host": ["{{gateway}}"],
+              "path": ["api", "students", "3", "status"],
+              "query": [
+                {
+                  "key": "active",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Activa al estudiante inactivo (id=3). Esperado: 200 OK."
+          }
+        },
+        {
+          "name": "Eliminar estudiante",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{gateway}}/api/students/4",
+              "host": ["{{gateway}}"],
+              "path": ["api", "students", "4"]
+            },
+            "description": "Esperado: 204 No Content."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enrollments",
+      "item": [
+        {
+          "name": "Listar todas las matriculas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gateway}}/api/enrollments",
+              "host": ["{{gateway}}"],
+              "path": ["api", "enrollments"]
+            }
+          }
+        },
+        {
+          "name": "Matricular estudiante activo (HAPPY PATH)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": 1,\n  \"courseId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/enrollments",
+              "host": ["{{gateway}}"],
+              "path": ["api", "enrollments"]
+            },
+            "description": "Flujo principal: estudiante activo (id=1) se matricula en JAVA-101 (id=1). Internamente llama a ms-courses para reservar el cupo. Esperado: 201 Created."
+          }
+        },
+        {
+          "name": "Matricular estudiante INACTIVO (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": 3,\n  \"courseId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/enrollments",
+              "host": ["{{gateway}}"],
+              "path": ["api", "enrollments"]
+            },
+            "description": "Esperado: 409 Conflict (InactiveStudentException). NO se llama a ms-courses."
+          }
+        },
+        {
+          "name": "Matricular estudiante INEXISTENTE (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": 999,\n  \"courseId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{gateway}}/api/enrollments",
+              "host": ["{{gateway}}"],
+              "path": ["api", "enrollments"]
+            },
+            "description": "Esperado: 404 Not Found (StudentNotFoundException)."
+          }
+        },
+        {
+          "name": "Obtener matricula por id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gateway}}/api/enrollments/1",
+              "host": ["{{gateway}}"],
+              "path": ["api", "enrollments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Cancelar matricula",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{gateway}}/api/enrollments/1",
+              "host": ["{{gateway}}"],
+              "path": ["api", "enrollments", "1"]
+            },
+            "description": "Cambia el estado a CANCELLED y libera el cupo en ms-courses. Esperado: 200 OK."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Infraestructura",
+      "item": [
+        {
+          "name": "Dashboard Eureka",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:18761",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "18761"
+            },
+            "description": "Dashboard web de Eureka. Muestra los servicios registrados."
+          }
+        },
+        {
+          "name": "Health del Gateway",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:18080/actuator/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "18080",
+              "path": ["actuator", "health"]
+            },
+            "description": "Valida que el API Gateway esté operativo."
+          }
+        },
+        {
+          "name": "Swagger UI - ms-courses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:18081/swagger-ui.html",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "18081",
+              "path": ["swagger-ui.html"]
+            }
+          }
+        },
+        {
+          "name": "Swagger UI - ms-students",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:18082/swagger-ui.html",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "18082",
+              "path": ["swagger-ui.html"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
